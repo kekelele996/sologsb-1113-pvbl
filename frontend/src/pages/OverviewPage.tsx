@@ -261,6 +261,7 @@ export default function OverviewPage() {
                       <Chip size="small" variant="outlined" label={`${session.plannedFrames} 帧 × ${target?.exposureSec ?? '-'}s`} />
                       <StatusChip status={session.status} />
                       {ids.has(session.id) ? <Chip size="small" color="error" label="时段冲突" /> : null}
+                      {session.rescheduledFromId ? <Chip size="small" color="success" variant="outlined" label={`改期自 ${session.rescheduledFromId}`} /> : null}
                       {altitude?.below ? <Chip size="small" color="warning" label={`高度角 ${altitude.altitude}° 低于阈值 ${target?.minAltitude}°`} /> : <Chip size="small" color="success" variant="outlined" label={`高度角 ${altitude?.altitude ?? '-'}°`} />}
                       {session.rescheduleReason ? <Typography variant="caption" color="text.secondary">{session.rescheduleReason}</Typography> : null}
                     </Stack>
