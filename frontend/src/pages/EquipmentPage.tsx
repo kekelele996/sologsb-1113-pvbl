@@ -180,7 +180,7 @@ export default function EquipmentPage() {
                             </Typography>
                           </Tooltip>
                         ) : (
-                          <Tooltip title={`${items[0].startTime}-${items[0].endTime} ${target?.name ?? ''} · ${items[0].status}`}>
+                          <Tooltip title={`${items[0].startTime}-${items[0].endTime} ${target?.name ?? ''} · ${items[0].status}${items[0].rescheduledFromSessionId ? `（原段 ${items[0].rescheduledFromSessionId} 改期而来）` : ''}`}>
                             <Typography variant="caption" sx={{ whiteSpace: 'nowrap' }}>
                               {target?.name ?? '已排'}
                             </Typography>

@@ -26,6 +26,12 @@ export interface ObsSession {
   rescheduleReason?: string;
   /** 替补夜 ID（迁移时补齐） */
   backupNightId?: string;
+  /** 改期换位：该段（原段）在备用夜生成的待执行新段 ID */
+  rescheduledToSessionId?: string;
+  /** 改期换位：该段（备用夜新段）对应的原段 ID */
+  rescheduledFromSessionId?: string;
+  /** 改期时间（ISO 字符串） */
+  rescheduledAt?: string;
   /** 数据结构版本 */
   schemaVersion: number;
 }

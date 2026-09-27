@@ -44,6 +44,7 @@ export default function OverviewPage() {
   const targetById = (id: string) => targets.find((target) => target.id === id);
   const telescopeById = (id: string) => telescopes.find((item) => item.id === id);
   const instrumentById = (id: string) => instruments.find((item) => item.id === id);
+  const nightById = (id: string) => nights.find((item) => item.id === id);
 
   const altitudes = useMemo(() => {
     const map = new Map<string, { altitude: number; below: boolean }>();
@@ -262,6 +263,23 @@ export default function OverviewPage() {
                       <StatusChip status={session.status} />
                       {ids.has(session.id) ? <Chip size="small" color="error" label="时段冲突" /> : null}
                       {altitude?.below ? <Chip size="small" color="warning" label={`高度角 ${altitude.altitude}° 低于阈值 ${target?.minAltitude}°`} /> : <Chip size="small" color="success" variant="outlined" label={`高度角 ${altitude?.altitude ?? '-'}°`} />}
+                      {session.rescheduledToSessionId ? (
+                        <Chip
+                          size="small"
+                          color="warning"
+                          variant="outlined"
+                          label={`已换位到 ${nightById(session.backupNightId ?? '')?.date ?? '备用夜'} · 新任务 ${session.rescheduledToSessionId}`}
+                          onClick={() => session.backupNightId && setCurrentNight(session.backupNightId)}
+                        />
+                      ) : null}
+                      {session.rescheduledFromSessionId ? (
+                        <Chip
+                          size="small"
+                          color="secondary"
+                          variant="outlined"
+                          label={`由原段 ${session.rescheduledFromSessionId} 改期而来`}
+                        />
+                      ) : null}
                       {session.rescheduleReason ? <Typography variant="caption" color="text.secondary">{session.rescheduleReason}</Typography> : null}
                     </Stack>
                   </CardContent>

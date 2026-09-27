@@ -26,7 +26,7 @@ docker compose down
 | UI | MUI（Material UI 5）+ Emotion |
 | 路由 | React Router 6（5 条业务路由 + 404） |
 | 状态 | Zustand（targetStore / sessionStore / equipmentStore / nightStore） |
-| 存储 | IndexedDB（Dexie，库名 `gbobsplan-db`，`schemaVersion` + v2 迁移） |
+| 存储 | IndexedDB（Dexie，库名 `gbobsplan-db`，`schemaVersion` + v2/v3 迁移） |
 | 托管 | nginx:alpine（多阶段构建，SPA try_files + gzip） |
 
 ## 本地开发
@@ -64,7 +64,7 @@ npm run build    # 类型检查 + 生产构建
 | --- | --- | --- |
 | `/` | 本夜编排总览 | 30 分钟刻度时间轴 + 月相与月出月落条带；冲突与低于高度阈值的目标自动标灰 |
 | `/targets` | 观测目标库 | 按类型与优先级筛选、按视星等排序、维护地平高度阈值与曝光参数，并给出本夜可见窗口 |
-| `/sessions` | 排程段与冲突 | 冲突检测结果、按时段/望远镜校验，勾选多条批量改期到备用观测夜并填写改期原因 |
+| `/sessions` | 排程段与冲突 | 冲突检测结果、按时段/望远镜校验，勾选多条批量换位改期到备用观测夜（原段保留取消原因并记录新旧段双向对应，备用夜为每段生成待执行任务；备用夜同望远镜时段重叠则整批不写入并指出冲突段；已改期段再次提交自动跳过） |
 | `/equipment` | 设备分配视图 | 行 = 望远镜、列 = 30 分钟时段；冲突格标红，点击可一键跳转到对应排程段 |
 | `/export` | 导出观测清单 | 目标、时刻、滤镜、帧数导出为文本与 CSV，支持打印视图 |
 
@@ -72,5 +72,6 @@ npm run build    # 类型检查 + 生产构建
 
 - 全部数据存于浏览器 IndexedDB（Dexie，库名 `gbobsplan-db`），表：`targets`、`sessions`、`telescopes`、`instruments`、`nights`、`meta`。
 - `db.version(1).stores({...})` 声明索引；`db.version(2).upgrade(...)` 为排程段增加 `backupNightId` 索引，并给旧数据补齐 `schemaVersion` 与因云取消排程段的替补夜。
-- 首次打开且表为空时写入示例数据（12 个观测目标、5 个观测夜、4 台望远镜、4 台终端、14 段排程，含 1 处设备冲突与 1 条改期记录）。
+- `db.version(3).upgrade(...)` 为排程段增加换位追溯字段（`rescheduledToSessionId` / `rescheduledFromSessionId` / `rescheduledAt`），并为历史上只挂了替补夜编号、备用夜却没有待执行任务的取消段补出对应待执行段。
+- 首次打开且表为空时写入示例数据（12 个观测目标、5 个观测夜、4 台望远镜、4 台终端、15 段排程，含 1 处设备冲突与 1 条完整换位改期记录：原段 s-11 因云取消，备用夜 s-15 待执行）。
 - 容器无状态：不使用数据库服务、不挂载命名卷，`docker compose down` 后数据仍留在浏览器中。
